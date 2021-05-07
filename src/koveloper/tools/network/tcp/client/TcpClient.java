@@ -97,9 +97,16 @@ public class TcpClient extends NetworkConnection {
 
     @Override
     protected void NetworkConnection__send(NetworkConnectionData data) {
-        if(this.finished) {
+        if(this.finished || this.session == null) {
             return;
         }
+        byte[] bytesToSend = data.serialize();
+        IoBuffer buffer = IoBuffer.allocate(bytesToSend.length);
+        buffer.put(bytesToSend);
+        buffer.flip();
+        this.session.write(buffer);
+        buffer.clear();
+        buffer.free();
     }
 
     @Override
