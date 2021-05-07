@@ -1,0 +1,3 @@
+[submodule "mina"]
+	path = mina
+	url = https://gitbox.apache.org/repos/asf/mina.git
