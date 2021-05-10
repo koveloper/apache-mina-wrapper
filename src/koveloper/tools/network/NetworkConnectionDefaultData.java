@@ -5,6 +5,8 @@
  */
 package koveloper.tools.network;
 
+import java.util.Arrays;
+
 /**
  *
  * @author kgn
@@ -40,4 +42,11 @@ public class NetworkConnectionDefaultData implements NetworkConnectionData {
     public byte[] serialize() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return "NetworkConnectionDefaultData{" + "data=" + Arrays.toString(data) + ", isForTransmit=" + isForTransmit + '}';
+    }
+    
+    
 }
