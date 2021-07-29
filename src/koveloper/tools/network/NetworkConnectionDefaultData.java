@@ -47,6 +47,4 @@ public class NetworkConnectionDefaultData implements NetworkConnectionData {
     public String toString() {
         return "NetworkConnectionDefaultData{" + "data=" + Arrays.toString(data) + ", isForTransmit=" + isForTransmit + '}';
     }
-    
-    
 }
