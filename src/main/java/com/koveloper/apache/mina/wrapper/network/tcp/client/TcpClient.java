@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package koveloper.tools.network.tcp.client;
+package com.koveloper.apache.mina.wrapper.network.tcp.client;
 
+import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
+import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
+import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.logging.Logger;
-import koveloper.tools.network.NetworkConnection;
-import koveloper.tools.network.NetworkConnectionData;
-import koveloper.tools.network.NetworkConnectionDefaultData;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;

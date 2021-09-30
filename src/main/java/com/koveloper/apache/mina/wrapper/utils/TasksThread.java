@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package koveloper.utils;
+package com.koveloper.apache.mina.wrapper.utils;
 
 import java.util.LinkedList;
 

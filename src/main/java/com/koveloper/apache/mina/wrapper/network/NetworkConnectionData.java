@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package koveloper.tools.network;
+package com.koveloper.apache.mina.wrapper.network;
 
 /**
  *
