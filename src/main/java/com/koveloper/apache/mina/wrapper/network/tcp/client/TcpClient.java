@@ -86,7 +86,9 @@ public class TcpClient extends NetworkConnection {
         Logger.getLogger(TcpClient.class.getName()).info("connect");
         ConnectFuture future = connector.connect(new InetSocketAddress(this.host, this.port));
         try {
-            future.await(CONNECT_TIMEOUT_MS);
+            if(!future.await(CONNECT_TIMEOUT_MS)) {
+                throw new Exception("connect failed");
+            }
             session = future.getSession();
             this.invokeEvent(OPERATION__CONNECTED);
         } catch (Exception ex) {
