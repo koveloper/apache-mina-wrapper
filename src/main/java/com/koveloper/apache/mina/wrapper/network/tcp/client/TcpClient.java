@@ -30,7 +30,6 @@ public class TcpClient extends NetworkConnection {
     private int port = 0;
     private NioSocketConnector connector = null;
     private IoSession session = null;
-    private boolean finished = false;
     private final IoHandler ioHandler = new IoHandlerAdapter() {
         @Override
         public void sessionClosed(IoSession session) throws Exception {
@@ -57,20 +56,17 @@ public class TcpClient extends NetworkConnection {
         this.port = port;
     }
     
-    public void finish() {
-        this.finished = true;
+    @Override
+    protected void NetworkConnection__finish() {
         if(this.session != null) {
-            this.session.closeOnFlush();
-        } else {
-            TcpClient.this.invokeEvent(OPERATION__DISCONNECTED);
-        }
+            this.session.closeOnFlush();            
+        } 
+        this.connector.dispose(true);
+        this.commitFinished();            
     }
 
     @Override
     protected void NetworkConnection__init() {
-        if(this.finished) {
-            return;
-        }
         Logger.getLogger(TcpClient.class.getName()).info("init");
         connector = new NioSocketConnector();
         connector.setConnectTimeoutMillis(CONNECT_TIMEOUT_MS);
@@ -80,9 +76,6 @@ public class TcpClient extends NetworkConnection {
 
     @Override
     protected void NetworkConnection__connect() {
-        if(this.finished) {
-            return;
-        }
         Logger.getLogger(TcpClient.class.getName()).info("connect");
         ConnectFuture future = connector.connect(new InetSocketAddress(this.host, this.port));
         try {
@@ -99,7 +92,7 @@ public class TcpClient extends NetworkConnection {
 
     @Override
     protected void NetworkConnection__send(NetworkConnectionData data) {
-        if(this.finished || this.session == null) {
+        if(this.session == null) {
             return;
         }
         byte[] bytesToSend = data.serialize();
@@ -117,19 +110,16 @@ public class TcpClient extends NetworkConnection {
     }
 
     @Override
-    protected void NetworkConnection__connected() {
-        this.commitConnected();
+    protected void NetworkConnection__connected(Object src) {
+        this.commitConnected(src);
     }
 
     @Override
-    protected void NetworkConnection__disconnected() {
-        if(this.finished) {
-            this.destroyTasksHandler();
-            this.connector.dispose(true);
-            this.commitFinished();
+    protected void NetworkConnection__disconnected(Object src) {
+        if(this.isFinished()) {
             return;
         }
         TcpClient.this.invokeEvent(OPERATION__CONNECT);
-        this.commitDisconnected();
+        this.commitDisconnected(src);
     }
 }

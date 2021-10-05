@@ -5,6 +5,8 @@
  */
 package com.koveloper.apache.mina.wrapper.network;
 
+import org.apache.mina.core.session.IoSession;
+
 /**
  *
  * @author kgn
@@ -14,4 +16,6 @@ public interface NetworkConnectionData {
     public boolean isForTransmit();
     
     public byte[] serialize();
+    
+    public IoSession getAttachedSession();
 }

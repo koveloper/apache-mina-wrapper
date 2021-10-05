@@ -11,9 +11,11 @@ package com.koveloper.apache.mina.wrapper.network;
  */
 public interface NetworkListener {
     
-    public void connected(Object iptr__);
+    public void error(Object iptr__, Object error);
     
-    public void disconnected(Object iptr__);
+    public void connected(Object iptr__, Object src);
+    
+    public void disconnected(Object iptr__, Object src);
     
     public void finished(Object iptr__);
     
