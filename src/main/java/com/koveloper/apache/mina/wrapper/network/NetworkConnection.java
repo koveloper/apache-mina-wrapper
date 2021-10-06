@@ -8,6 +8,7 @@ package com.koveloper.apache.mina.wrapper.network;
 import com.koveloper.apache.mina.wrapper.network.tcp.server.SessionEvent;
 import com.koveloper.apache.mina.wrapper.utils.TasksThread;
 import java.util.LinkedList;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 
 /**
@@ -160,6 +161,15 @@ public abstract class NetworkConnection {
     
     public final void send(byte[] data, IoSession sessionTo) {
         this.send(NetworkConnectionDefaultData.getNewInstanceForTransmit(data, sessionTo));
+    }    
+    
+    protected void sendThrewSession(IoSession session, byte[] bytesToSend) {
+        IoBuffer buffer = IoBuffer.allocate(bytesToSend.length);
+        buffer.put(bytesToSend);
+        buffer.flip();
+        session.write(buffer);
+        buffer.clear();
+        buffer.free();
     }
 
     protected abstract void NetworkConnection__init();

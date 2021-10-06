@@ -5,6 +5,7 @@
  */
 package com.koveloper.apache.mina.wrapper.network;
 
+import java.net.SocketAddress;
 import java.util.Arrays;
 import org.apache.mina.core.session.IoSession;
 
@@ -17,16 +18,22 @@ public class NetworkConnectionDefaultData implements NetworkConnectionData {
     private byte[] data = null;
     private boolean isForTransmit = false;
     private IoSession session = null;
+    private SocketAddress destination = null;
     
     private NetworkConnectionDefaultData(boolean isForTransmit, byte[] data) {
-        this(isForTransmit, data, null);
+        this(isForTransmit, data, (IoSession) null);
     }
-    
     
     private NetworkConnectionDefaultData(boolean isForTransmit, byte[] data, IoSession session) {
         this.data = data;
         this.isForTransmit = isForTransmit;
         this.session = session;
+    }
+    
+    private NetworkConnectionDefaultData(boolean isForTransmit, byte[] data, SocketAddress destination) {
+        this.data = data;
+        this.isForTransmit = isForTransmit;
+        this.destination = destination;
     }
     
     public static NetworkConnectionDefaultData getNewInstanceForTransmit(byte[] data) {
@@ -37,12 +44,20 @@ public class NetworkConnectionDefaultData implements NetworkConnectionData {
         return new NetworkConnectionDefaultData(true, data, session);
     }
     
+    public static NetworkConnectionDefaultData getNewInstanceForTransmit(byte[] data, SocketAddress destination) {
+        return new NetworkConnectionDefaultData(true, data, destination);
+    }
+    
     public static NetworkConnectionDefaultData getNewInstanceForReceive(byte[] data) {
         return new NetworkConnectionDefaultData(false, data);
     }
     
     public static NetworkConnectionDefaultData getNewInstanceForReceive(byte[] data, IoSession session) {
         return new NetworkConnectionDefaultData(false, data, session);
+    }
+    
+    public static NetworkConnectionDefaultData getNewInstanceForReceive(byte[] data, SocketAddress destination) {
+        return new NetworkConnectionDefaultData(false, data, destination);
     }
 
     public byte[] getData() {
@@ -62,6 +77,15 @@ public class NetworkConnectionDefaultData implements NetworkConnectionData {
     @Override
     public byte[] serialize() {
         return data;
+    }
+
+    @Override
+    public SocketAddress getDestination() {
+        return destination;
+    }
+
+    public void setDestination(SocketAddress destination) {
+        this.destination = destination;
     }
 
     @Override

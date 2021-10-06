@@ -130,16 +130,7 @@ public class TcpServer extends NetworkConnection {
             return;
         }
         this.commitDisconnected(src);
-    }
-    
-    private void sendThrewSession(IoSession session, byte[] bytesToSend) {
-        IoBuffer buffer = IoBuffer.allocate(bytesToSend.length);
-        buffer.put(bytesToSend);
-        buffer.flip();
-        session.write(buffer);
-        buffer.clear();
-        buffer.free();
-    }
+    }    
 
     @Override
     protected void NetworkConnection__send(NetworkConnectionData data) {
@@ -162,47 +153,47 @@ public class TcpServer extends NetworkConnection {
     protected void NetworkConnection__handleReceivedData(NetworkConnectionData data) {
         this.commitData(data);
     }
-
-    public static void main(String[] args) {
-        final TcpServer server = new TcpServer(64300);
-        server.addListener(new NetworkListener(){
-            @Override
-            public void error(Object iptr__, Object error) {
-                System.out.println(error);
-            }
-
-            @Override
-            public void connected(Object iptr__, Object src) {
-                System.out.println("connected: " + src);
-            }
-
-            @Override
-            public void disconnected(Object iptr__, Object src) {
-                System.out.println("disconnected: " + src);
-            }
-
-            @Override
-            public void finished(Object iptr__) {
-            }
-
-            @Override
-            public void dataReceived(Object iptr__, NetworkConnectionData data) {
-                server.send(data.serialize(), data.getAttachedSession());
-            }
-        });
-        server.init();
-        new Thread(){
-            @Override
-            public void run() {
-                try {
-                    sleep(30000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(TcpServer.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                server.finish();
-            }
-        
-            
-        }.start();
-    }
+//
+//    public static void main(String[] args) {
+//        final TcpServer server = new TcpServer(64300);
+//        server.addListener(new NetworkListener(){
+//            @Override
+//            public void error(Object iptr__, Object error) {
+//                System.out.println(error);
+//            }
+//
+//            @Override
+//            public void connected(Object iptr__, Object src) {
+//                System.out.println("connected: " + src);
+//            }
+//
+//            @Override
+//            public void disconnected(Object iptr__, Object src) {
+//                System.out.println("disconnected: " + src);
+//            }
+//
+//            @Override
+//            public void finished(Object iptr__) {
+//            }
+//
+//            @Override
+//            public void dataReceived(Object iptr__, NetworkConnectionData data) {
+//                server.send(data.serialize(), data.getAttachedSession());
+//            }
+//        });
+//        server.init();
+//        new Thread(){
+//            @Override
+//            public void run() {
+//                try {
+//                    sleep(30000);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(TcpServer.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                server.finish();
+//            }
+//        
+//            
+//        }.start();
+//    }
 }

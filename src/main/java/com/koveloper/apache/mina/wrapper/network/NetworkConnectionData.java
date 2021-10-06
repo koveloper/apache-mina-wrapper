@@ -5,6 +5,7 @@
  */
 package com.koveloper.apache.mina.wrapper.network;
 
+import java.net.SocketAddress;
 import org.apache.mina.core.session.IoSession;
 
 /**
@@ -18,4 +19,6 @@ public interface NetworkConnectionData {
     public byte[] serialize();
     
     public IoSession getAttachedSession();
+    
+    public SocketAddress getDestination();
 }
