@@ -7,12 +7,15 @@ package com.koveloper.apache.mina.wrapper.network.udp;
 
 import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
+import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
+import com.koveloper.apache.mina.wrapper.network.tcp.client.TcpClient;
 import com.koveloper.apache.mina.wrapper.utils.TasksThread;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,17 +52,13 @@ public class Udp extends NetworkConnection {
     @Override
     protected void NetworkConnection__init() {
         NetworkConnection__finish();
-        try {
-            channel = DatagramChannel.open();
-        } catch (IOException ex) {
-            Logger.getLogger(Udp.class.getName()).log(Level.SEVERE, null, ex);
-        }
         this.invokeEvent(OPERATION__CONNECT);
     }
 
     @Override
     protected void NetworkConnection__connect() {
         try {
+            channel = DatagramChannel.open();
             channel.configureBlocking(true);
             channel.bind(this.port == null ? null : new InetSocketAddress(this.port));
             rxThread = new TasksThread(Udp.class.getCanonicalName() + "-rx") {
@@ -73,7 +72,14 @@ public class Udp extends NetworkConnection {
                         if(captureDstHost) {
                             dstHost = remoteAdd;
                         }
-                        System.out.println("rx datagram");
+                        buffer.flip();
+                        byte[] bytes = new byte[buffer.remaining()];
+                        buffer.get(bytes);
+                        buffer.flip();
+                        buffer.limit(buffer.capacity());
+                        Udp.this.invokeEvent(
+                                NetworkConnectionDefaultData.getNewInstanceForReceive(bytes)
+                        );
                     } catch (Exception ex) {
                         Udp.this.commitError(ex);
                     }
