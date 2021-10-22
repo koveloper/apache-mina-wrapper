@@ -10,6 +10,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <repositories>
+        <repository>
+            <id>radiomost-maven-repos-releases</id>
+            <name>RadioMost Maven Repository</name>
+            <url>https://maven.radio-most.ru/releases</url>
+        </repository>
+    </repositories>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.apache.mina/mina-core -->
         <dependency>
