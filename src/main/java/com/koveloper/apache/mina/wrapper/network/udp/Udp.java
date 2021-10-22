@@ -8,14 +8,14 @@ package com.koveloper.apache.mina.wrapper.network.udp;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
-import com.koveloper.apache.mina.wrapper.network.tcp.client.TcpClient;
-import com.koveloper.apache.mina.wrapper.utils.TasksThread;
+import com.koveloper.thread.utils.TasksThread;
+import com.koveloper.thread.utils.TasksThreadInterface;
+import com.koveloper.thread.utils.TasksThreadInterfaceAdapter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,11 +25,37 @@ import java.util.logging.Logger;
  */
 public class Udp extends NetworkConnection {
 
+    private static final int MAKE_RX = 1;
     private Integer port = null;
     private SocketAddress dstHost = null;
     private boolean captureDstHost = false;
     private DatagramChannel channel = null;
     private TasksThread rxThread = null;
+    private final TasksThreadInterface rxThreadIface = new TasksThreadInterfaceAdapter() {
+        ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+        @Override
+        public void handleTask(Object task) {
+            try {
+                SocketAddress remoteAdd = channel.receive(buffer);
+                if (captureDstHost) {
+                    dstHost = remoteAdd;
+                }
+                buffer.flip();
+                byte[] bytes = new byte[buffer.remaining()];
+                buffer.get(bytes);
+                buffer.flip();
+                buffer.limit(buffer.capacity());
+                Udp.this.invokeEvent(
+                        NetworkConnectionDefaultData.getNewInstanceForReceive(bytes)
+                );
+            } catch (Exception ex) {
+                Udp.this.commitError(ex);
+            }
+            rxThread.addTask(MAKE_RX);
+        }
+    };
+
     public Udp() {
         this(null);
     }
@@ -42,7 +68,7 @@ public class Udp extends NetworkConnection {
     }
 
     public Udp setDefaultRemoteHost(String ip, int port, boolean captureRemoteHost) {
-        if(ip != null && port > 0 && port < 65535) {
+        if (ip != null && port > 0 && port < 65535) {
             dstHost = new InetSocketAddress(ip, port);
         }
         this.captureDstHost = captureRemoteHost;
@@ -61,32 +87,9 @@ public class Udp extends NetworkConnection {
             channel = DatagramChannel.open();
             channel.configureBlocking(true);
             channel.bind(this.port == null ? null : new InetSocketAddress(this.port));
-            rxThread = new TasksThread(Udp.class.getCanonicalName() + "-rx") {
-
-                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                @Override
-                protected void handleTask(Object task) {
-                    try {
-                        SocketAddress remoteAdd = channel.receive(buffer);
-                        if(captureDstHost) {
-                            dstHost = remoteAdd;
-                        }
-                        buffer.flip();
-                        byte[] bytes = new byte[buffer.remaining()];
-                        buffer.get(bytes);
-                        buffer.flip();
-                        buffer.limit(buffer.capacity());
-                        Udp.this.invokeEvent(
-                                NetworkConnectionDefaultData.getNewInstanceForReceive(bytes)
-                        );
-                    } catch (Exception ex) {
-                        Udp.this.commitError(ex);
-                    }
-                    addTask(1);
-                }
-            };
-            rxThread.addTask(1);
+            rxThread = new TasksThread(Udp.class.getCanonicalName() + "-rx")
+                    .setIface(rxThreadIface);
+            rxThread.addTask(MAKE_RX);
         } catch (IOException ex) {
             Logger.getLogger(Udp.class.getName()).log(Level.SEVERE, null, ex);
             this.commitError(ex);
@@ -108,10 +111,10 @@ public class Udp extends NetworkConnection {
                 return;
             }
             SocketAddress dst = data.getDestination();
-            if(dst == null && dstHost == null) {
+            if (dst == null && dstHost == null) {
                 return;
             }
-            if(dst == null) {
+            if (dst == null) {
                 dst = dstHost;
             }
             ByteBuffer buf = ByteBuffer.wrap(data.serialize());
@@ -129,7 +132,7 @@ public class Udp extends NetworkConnection {
 
     @Override
     protected void NetworkConnection__finish() {
-        if(channel == null) {
+        if (channel == null) {
             return;
         }
         rxThread.finish();

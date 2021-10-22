@@ -6,7 +6,8 @@
 package com.koveloper.apache.mina.wrapper.network;
 
 import com.koveloper.apache.mina.wrapper.network.tcp.server.SessionEvent;
-import com.koveloper.apache.mina.wrapper.utils.TasksThread;
+import com.koveloper.thread.utils.TasksThread;
+import com.koveloper.thread.utils.TasksThreadInterfaceAdapter;
 import java.util.LinkedList;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -26,76 +27,79 @@ public abstract class NetworkConnection {
     private boolean finished = false;
 
     private TasksThread tasks = null;
-
-    protected NetworkConnection(String taskThreadName) {
-        tasks = new TasksThread(taskThreadName + "-" + System.currentTimeMillis()) {
-            @Override
-            protected void handleTask(Object task) {
-                if (task instanceof Integer) {
-                    switch ((int) task) {
-                        case OPERATION__INIT:
-                            NetworkConnection.this.NetworkConnection__init();
-                            break;
-                        case OPERATION__CONNECT:
-                            NetworkConnection.this.NetworkConnection__connect();
-                            break;
-                        case OPERATION__CONNECTED:
-                            NetworkConnection.this.NetworkConnection__connected(null);
-                            break;
-                        case OPERATION__DISCONNECTED:
-                            NetworkConnection.this.NetworkConnection__disconnected(null);
-                            break;
-                        case OPERATION__FINISH:
-                            NetworkConnection.this.NetworkConnection__finish();
-                            NetworkConnection.this.NetworkConnection__disconnected(null);
-                            this.finish();
-                            break;
-                        default:
-                            break;
-                    }
-                } else if (task instanceof NetworkConnectionData) {
-                    if (((NetworkConnectionData) task).isForTransmit()) {
-                        NetworkConnection.this.NetworkConnection__send((NetworkConnectionData) task);
-                    } else {
-                        NetworkConnection.this.NetworkConnection__handleReceivedData((NetworkConnectionData) task);
-                    }
-                } else if(task instanceof SessionEvent) {
-                    SessionEvent evt = (SessionEvent) task;
-                    switch (evt.getCode()) {
-                        case OPERATION__INIT:
-                            NetworkConnection.this.NetworkConnection__init();
-                            break;
-                        case OPERATION__CONNECT:
-                            NetworkConnection.this.NetworkConnection__connect();
-                            break;
-                        case OPERATION__CONNECTED:
-                            NetworkConnection.this.NetworkConnection__connected(evt.getSession());
-                            break;
-                        case OPERATION__DISCONNECTED:
-                            NetworkConnection.this.NetworkConnection__disconnected(evt.getSession());
-                            break;
-                        case OPERATION__FINISH:
-                            NetworkConnection.this.NetworkConnection__finish();
-                            NetworkConnection.this.NetworkConnection__disconnected(null);
-                            this.finish();
-                            break;
-                        default:
-                            break;
-                    }
+    private final TasksThreadInterfaceAdapter tasksIface = new TasksThreadInterfaceAdapter() {
+        @Override
+        public void handleTask(Object task) {
+            if (task instanceof Integer) {
+                switch ((int) task) {
+                    case OPERATION__INIT:
+                        NetworkConnection.this.NetworkConnection__init();
+                        break;
+                    case OPERATION__CONNECT:
+                        NetworkConnection.this.NetworkConnection__connect();
+                        break;
+                    case OPERATION__CONNECTED:
+                        NetworkConnection.this.NetworkConnection__connected(null);
+                        break;
+                    case OPERATION__DISCONNECTED:
+                        NetworkConnection.this.NetworkConnection__disconnected(null);
+                        break;
+                    case OPERATION__FINISH:
+                        NetworkConnection.this.NetworkConnection__finish();
+                        NetworkConnection.this.NetworkConnection__disconnected(null);
+                        tasks.finish();
+                        break;
+                    default:
+                        break;
+                }
+            } else if (task instanceof NetworkConnectionData) {
+                if (((NetworkConnectionData) task).isForTransmit()) {
+                    NetworkConnection.this.NetworkConnection__send((NetworkConnectionData) task);
+                } else {
+                    NetworkConnection.this.NetworkConnection__handleReceivedData((NetworkConnectionData) task);
+                }
+            } else if (task instanceof SessionEvent) {
+                SessionEvent evt = (SessionEvent) task;
+                switch (evt.getCode()) {
+                    case OPERATION__INIT:
+                        NetworkConnection.this.NetworkConnection__init();
+                        break;
+                    case OPERATION__CONNECT:
+                        NetworkConnection.this.NetworkConnection__connect();
+                        break;
+                    case OPERATION__CONNECTED:
+                        NetworkConnection.this.NetworkConnection__connected(evt.getSession());
+                        break;
+                    case OPERATION__DISCONNECTED:
+                        NetworkConnection.this.NetworkConnection__disconnected(evt.getSession());
+                        break;
+                    case OPERATION__FINISH:
+                        NetworkConnection.this.NetworkConnection__finish();
+                        NetworkConnection.this.NetworkConnection__disconnected(null);
+                        tasks.finish();
+                        break;
+                    default:
+                        break;
                 }
             }
-        };
+        }
+
+    };
+
+    protected NetworkConnection(String taskThreadName) {
+        tasks = new TasksThread(taskThreadName + "-" + System.currentTimeMillis())
+                .setIface(tasksIface);
     }
 
     public final void init() {
-        if(this.finished) {
+        if (this.finished) {
             return;
         }
         tasks.addTask(OPERATION__INIT);
     }
-    
+
     public final void finish() {
-        if(this.finished) {
+        if (this.finished) {
             return;
         }
         this.finished = true;
@@ -113,56 +117,56 @@ public abstract class NetworkConnection {
     public final void removeListener(NetworkListener l) {
         listeners.remove(l);
     }
-    
+
     public boolean isFinished() {
         return this.finished;
-    }    
-    
+    }
+
     protected void commitConnected(Object src) {
-        for(NetworkListener l : listeners) {
+        listeners.forEach(l -> {
             l.connected(this, src);
-        }
+        });
     }
-    
+
     protected void commitDisconnected(Object src) {
-        for(NetworkListener l : listeners) {
+        listeners.forEach(l -> {
             l.disconnected(this, src);
-        }
+        });
     }
-    
+
     protected void commitFinished() {
-        for(NetworkListener l : listeners) {
+        listeners.forEach(l -> {
             l.finished(this);
-        }
+        });
     }
-    
+
     protected void commitError(Object error) {
-        for(NetworkListener l : listeners) {
+        listeners.forEach(l -> {
             l.error(this, error);
-        }
+        });
     }
-    
+
     protected void commitData(NetworkConnectionData data) {
-        for(NetworkListener l : listeners) {
+        listeners.forEach(l -> {
             l.dataReceived(this, data);
-        }
+        });
     }
-    
+
     public final void send(NetworkConnectionData data) {
-        if(this.finished) {
+        if (this.finished) {
             return;
         }
         this.invokeEvent(data);
     }
-    
+
     public final void send(byte[] data) {
         this.send(NetworkConnectionDefaultData.getNewInstanceForTransmit(data));
     }
-    
+
     public final void send(byte[] data, IoSession sessionTo) {
         this.send(NetworkConnectionDefaultData.getNewInstanceForTransmit(data, sessionTo));
-    }    
-    
+    }
+
     protected void sendThrewSession(IoSession session, byte[] bytesToSend) {
         IoBuffer buffer = IoBuffer.allocate(bytesToSend.length);
         buffer.put(bytesToSend);
@@ -175,15 +179,15 @@ public abstract class NetworkConnection {
     protected abstract void NetworkConnection__init();
 
     protected abstract void NetworkConnection__connect();
-    
+
     protected abstract void NetworkConnection__connected(Object src);
-    
+
     protected abstract void NetworkConnection__disconnected(Object src);
 
     protected abstract void NetworkConnection__send(NetworkConnectionData data);
 
     protected abstract void NetworkConnection__handleReceivedData(NetworkConnectionData data);
-    
+
     protected abstract void NetworkConnection__finish();
 
 }
