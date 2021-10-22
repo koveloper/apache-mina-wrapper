@@ -52,7 +52,9 @@ public class Udp extends NetworkConnection {
             } catch (Exception ex) {
                 Udp.this.commitError(ex);
             }
-            rxThread.addTask(MAKE_RX);
+            if(rxThread != null) {
+                rxThread.addTask(MAKE_RX);
+            }
         }
     };
 
