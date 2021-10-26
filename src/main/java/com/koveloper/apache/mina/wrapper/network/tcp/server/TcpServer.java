@@ -24,7 +24,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 /**
  *
- * @author koban
+ * @author koveloper
  */
 public class TcpServer extends NetworkConnection {
 

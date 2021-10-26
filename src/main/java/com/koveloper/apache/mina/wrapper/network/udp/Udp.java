@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author koban
+ * @author koveloper
  */
 public class Udp extends NetworkConnection {
 
