@@ -8,7 +8,6 @@ package com.koveloper.apache.mina.wrapper.network.tcp.server;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
-import com.koveloper.apache.mina.wrapper.network.NetworkListener;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -25,7 +24,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 /**
  *
- * @author koban
+ * @author koveloper
  */
 public class TcpServer extends NetworkConnection {
 
@@ -143,9 +142,13 @@ public class TcpServer extends NetworkConnection {
             buffer.clear();
             buffer.free();
         } else {
-            sessions.stream().filter(s -> (s.equals(data.getAttachedSession()))).forEachOrdered(s -> {
-                sendThrewSession(s, data.serialize());
-            });
+            try {
+                sessions.stream().filter(s -> (s.equals(data.getAttachedSession()))).forEachOrdered(s -> {
+                    sendThrewSession(s, data.serialize());
+                });
+            } catch (Exception e) {
+                Logger.getLogger(TcpServer.class.getCanonicalName()).log(Level.SEVERE, e.getMessage(), e);
+            }            
         }
     }
 
@@ -153,47 +156,4 @@ public class TcpServer extends NetworkConnection {
     protected void NetworkConnection__handleReceivedData(NetworkConnectionData data) {
         this.commitData(data);
     }
-//
-//    public static void main(String[] args) {
-//        final TcpServer server = new TcpServer(64300);
-//        server.addListener(new NetworkListener(){
-//            @Override
-//            public void error(Object iptr__, Object error) {
-//                System.out.println(error);
-//            }
-//
-//            @Override
-//            public void connected(Object iptr__, Object src) {
-//                System.out.println("connected: " + src);
-//            }
-//
-//            @Override
-//            public void disconnected(Object iptr__, Object src) {
-//                System.out.println("disconnected: " + src);
-//            }
-//
-//            @Override
-//            public void finished(Object iptr__) {
-//            }
-//
-//            @Override
-//            public void dataReceived(Object iptr__, NetworkConnectionData data) {
-//                server.send(data.serialize(), data.getAttachedSession());
-//            }
-//        });
-//        server.init();
-//        new Thread(){
-//            @Override
-//            public void run() {
-//                try {
-//                    sleep(30000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(TcpServer.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                server.finish();
-//            }
-//        
-//            
-//        }.start();
-//    }
 }
