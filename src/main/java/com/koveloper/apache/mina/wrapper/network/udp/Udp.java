@@ -11,13 +11,13 @@ import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
 import com.koveloper.thread.utils.TasksThread;
 import com.koveloper.thread.utils.TasksThreadInterface;
 import com.koveloper.thread.utils.TasksThreadInterfaceAdapter;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -25,6 +25,8 @@ import java.util.logging.Logger;
  */
 public class Udp extends NetworkConnection {
 
+    private static final Logger LOG = Logger.getLogger(Udp.class);
+    
     private static final int MAKE_RX = 1;
     private Integer port = null;
     private SocketAddress dstHost = null;
@@ -93,7 +95,7 @@ public class Udp extends NetworkConnection {
                     .setIface(rxThreadIface);
             rxThread.addTask(MAKE_RX);
         } catch (IOException ex) {
-            Logger.getLogger(Udp.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.ERROR, "connect error", ex);
             this.commitError(ex);
         }
     }
@@ -122,7 +124,7 @@ public class Udp extends NetworkConnection {
             ByteBuffer buf = ByteBuffer.wrap(data.serialize());
             channel.send(buf, dst);
         } catch (IOException ex) {
-            Logger.getLogger(Udp.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.ERROR, "send error", ex);
             this.commitError(ex);
         }
     }
@@ -141,7 +143,7 @@ public class Udp extends NetworkConnection {
         try {
             channel.close();
         } catch (IOException ex) {
-            Logger.getLogger(Udp.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.ERROR, "finish error", ex);
             this.commitError(ex);
         }
         rxThread = null;

@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoHandler;
@@ -27,6 +27,8 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
  * @author koveloper
  */
 public class TcpServer extends NetworkConnection {
+
+    private static final Logger LOG = Logger.getLogger(TcpServer.class);
 
     private int port = 0;
     private IoAcceptor acceptor = null;
@@ -101,6 +103,7 @@ public class TcpServer extends NetworkConnection {
         try {
             acceptor.bind(new InetSocketAddress(this.port));
         } catch (IOException ex) {
+            LOG.log(Level.ERROR, "bind [" + this.port + "]", ex);
             this.commitError(ex);
         }
     }
@@ -147,7 +150,7 @@ public class TcpServer extends NetworkConnection {
                     sendThrewSession(s, data.serialize());
                 });
             } catch (Exception e) {
-                Logger.getLogger(TcpServer.class.getCanonicalName()).log(Level.SEVERE, e.getMessage(), e);
+                LOG.log(Level.ERROR, "send error [" + this.port + "]", e);
             }            
         }
     }
