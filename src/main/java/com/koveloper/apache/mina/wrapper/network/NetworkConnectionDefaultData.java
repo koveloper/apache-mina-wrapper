@@ -90,6 +90,6 @@ public class NetworkConnectionDefaultData implements NetworkConnectionData {
 
     @Override
     public String toString() {
-        return "NetworkConnectionDefaultData{" + "data=" + data + ", isForTransmit=" + isForTransmit + ", session=" + session + '}';
+        return "NetworkConnectionDefaultData{" + "data[" + data.length + "]=" + Utils.toHexString(data) + ", isForTransmit=" + isForTransmit + ", session=" + session + '}';
     }
 }
