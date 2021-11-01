@@ -1,0 +1,17 @@
+digraph "apache-mina-wrapper" {
+  node [shape="box",style="rounded",fontname="Helvetica",fontsize="14"]
+  edge [fontsize="10",fontname="Helvetica"]
+
+  // Node Definitions:
+  "org.apache.mina:mina-core:jar"[label=<<font point-size="10">org.apache.mina</font><br/>mina-core<font point-size="10"><br/>2.1.3</font>>]
+  "org.slf4j:slf4j-api:jar"[label=<<font point-size="10">org.slf4j</font><br/>slf4j-api<font point-size="10"><br/>1.7.26</font>>]
+  "com.koveloper:apache-mina-wrapper:jar"[label=<<font point-size="10">com.koveloper</font><br/>apache-mina-wrapper<font point-size="10"><br/>2.3</font>>]
+  "com.koveloper:thread.utils:jar"[label=<<font point-size="10">com.koveloper</font><br/>thread.utils<font point-size="10"><br/>1.0</font>>]
+  "log4j:log4j:jar"[label=<<font point-size="10">log4j</font><br/>log4j<font point-size="10"><br/>1.2.17</font>>]
+
+  // Edge Definitions:
+  "org.apache.mina:mina-core:jar" -> "org.slf4j:slf4j-api:jar"
+  "com.koveloper:apache-mina-wrapper:jar" -> "org.apache.mina:mina-core:jar"
+  "com.koveloper:apache-mina-wrapper:jar" -> "com.koveloper:thread.utils:jar"
+  "com.koveloper:apache-mina-wrapper:jar" -> "log4j:log4j:jar"
+}
