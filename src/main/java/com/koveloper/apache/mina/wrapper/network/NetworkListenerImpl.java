@@ -7,7 +7,7 @@ package com.koveloper.apache.mina.wrapper.network;
 
 /**
  *
- * @author koban
+ * @author koveloper
  */
 public class NetworkListenerImpl implements NetworkListener{
     

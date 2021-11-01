@@ -9,7 +9,7 @@ import org.apache.mina.core.session.IoSession;
 
 /**
  *
- * @author koban
+ * @author koveloper
  */
 public class SessionEvent {
     private final IoSession session;
