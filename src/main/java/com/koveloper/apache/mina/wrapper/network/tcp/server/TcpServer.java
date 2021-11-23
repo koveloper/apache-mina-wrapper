@@ -32,7 +32,7 @@ public class TcpServer extends NetworkConnection {
 
     private int port = 0;
     private IoAcceptor acceptor = null;
-    private LinkedList<IoSession> sessions = new LinkedList<>();
+    private final LinkedList<IoSession> sessions = new LinkedList<>();
     private final IoHandler ioHandler = new IoHandlerAdapter() {
 
         //called on client accept
@@ -43,15 +43,19 @@ public class TcpServer extends NetworkConnection {
         //called after client accept
         @Override
         public void sessionOpened(IoSession session) {
-            sessions.add(session);
-            TcpServer.this.invokeEvent(new SessionEvent(session, OPERATION__CONNECTED));
+            synchronized(sessions) {
+                sessions.add(session);
+                TcpServer.this.invokeEvent(new SessionEvent(session, OPERATION__CONNECTED));
+            }
         }
 
         //called on client disconnect
         @Override
         public void sessionClosed(IoSession session) {
-            sessions.remove(session);
-            TcpServer.this.invokeEvent(new SessionEvent(session, OPERATION__DISCONNECTED));
+            synchronized(sessions) {
+                sessions.remove(session);
+                TcpServer.this.invokeEvent(new SessionEvent(session, OPERATION__DISCONNECTED));
+            }
         }
 
         //called on pause on line
@@ -146,9 +150,11 @@ public class TcpServer extends NetworkConnection {
             buffer.free();
         } else {
             try {
-                sessions.stream().filter(s -> (s.equals(data.getAttachedSession()))).forEachOrdered(s -> {
-                    sendThrewSession(s, data.serialize());
-                });
+                synchronized(sessions) {
+                    sessions.stream().filter(s -> (s.equals(data.getAttachedSession()))).forEachOrdered(s -> {
+                        sendThrewSession(s, data.serialize());
+                    });
+                }
             } catch (Exception e) {
                 LOG.log(Level.ERROR, "send error [" + this.port + "]", e);
             }            
