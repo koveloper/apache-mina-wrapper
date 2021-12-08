@@ -8,6 +8,7 @@ package com.koveloper.apache.mina.wrapper.network.tcp.server;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
+import com.koveloper.apache.mina.wrapper.network.Params;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ public class TcpServer extends NetworkConnection {
         public void sessionOpened(IoSession session) {
             synchronized(sessions) {
                 sessions.add(session);
+                session.getConfig().setMinReadBufferSize(Params.TcpServer.SESSION_MIN_BUF_SIZE);
                 TcpServer.this.invokeEvent(new SessionEvent(session, OPERATION__CONNECTED));
             }
         }
@@ -74,6 +76,7 @@ public class TcpServer extends NetworkConnection {
         public void messageReceived(IoSession session, Object message) {
             if (message instanceof IoBuffer) {
                 IoBuffer buf = (IoBuffer) message;
+                LOG.log(Level.DEBUG, "message received [" + buf + "]");
                 TcpServer.this.invokeEvent(
                         NetworkConnectionDefaultData.getNewInstanceForReceive(
                                 Arrays.copyOfRange(buf.array(), buf.arrayOffset(), buf.arrayOffset() + buf.remaining()),
@@ -82,8 +85,7 @@ public class TcpServer extends NetworkConnection {
                 );
             }
         }
-
-        //???
+        
         @Override
         public void inputClosed(IoSession session) {
             session.closeNow();

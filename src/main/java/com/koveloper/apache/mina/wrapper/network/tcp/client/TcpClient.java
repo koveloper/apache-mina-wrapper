@@ -8,6 +8,7 @@ package com.koveloper.apache.mina.wrapper.network.tcp.client;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
 import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
+import com.koveloper.apache.mina.wrapper.network.Params;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import org.apache.log4j.Logger;
@@ -26,8 +27,6 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 public class TcpClient extends NetworkConnection {
 
     private static final Logger LOG = Logger.getLogger(TcpClient.class);
-    
-    public static int CONNECT_TIMEOUT_MS = 10000;
     
     private String host = null;
     private int port = 0;
@@ -70,31 +69,31 @@ public class TcpClient extends NetworkConnection {
 
     @Override
     protected void NetworkConnection__init() {
-        LOG.log(Level.INFO, "init [" + this.host + ":" + this.port + "]");
+        LOG.log(Level.DEBUG, "init [" + this.host + ":" + this.port + "]");
         connector = new NioSocketConnector();
-        connector.setConnectTimeoutMillis(CONNECT_TIMEOUT_MS);
+        connector.setConnectTimeoutMillis(Params.TcpClient.CONNECT_TIMEOUT_MS);
         connector.setHandler(ioHandler);
         this.invokeEvent(OPERATION__CONNECT);
     }
 
     @Override
     protected void NetworkConnection__connect() {
-        LOG.log(Level.INFO, "connect try [" + this.host + ":" + this.port + "]");
+        LOG.log(Level.DEBUG, "connect try [" + this.host + ":" + this.port + "]");
         ConnectFuture future = connector.connect(new InetSocketAddress(this.host, this.port));
         try {
-            if(!future.await(CONNECT_TIMEOUT_MS)) {
+            if(!future.await(Params.TcpClient.CONNECT_TIMEOUT_MS)) {
                 throw new Exception("connect failed");
             }
             session = future.getSession();
             this.invokeEvent(OPERATION__CONNECTED);
-            LOG.log(Level.INFO, "connected [" + this.host + ":" + this.port + "]");
+            LOG.log(Level.DEBUG, "connected [" + this.host + ":" + this.port + "]");
         } catch (Exception ex) {
-            LOG.log(Level.INFO, "connect fails [" + this.host + ":" + this.port + "]");
+            LOG.log(Level.DEBUG, "connect fails [" + this.host + ":" + this.port + "]");
             session = null;
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex1) {
-                Logger.getLogger(TcpClient.class.getName()).log(Level.ERROR, null, ex1);
+                LOG.log(Level.ERROR, null, ex1);
             }
             this.invokeEvent(OPERATION__CONNECT);
         }
