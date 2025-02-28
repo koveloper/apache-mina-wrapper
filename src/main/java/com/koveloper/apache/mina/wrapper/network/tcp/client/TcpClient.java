@@ -32,6 +32,7 @@ public class TcpClient extends NetworkConnection {
     private int port = 0;
     private NioSocketConnector connector = null;
     private IoSession session = null;
+    private boolean connected = false;
     private final IoHandler ioHandler = new IoHandlerAdapter() {
         @Override
         public void sessionClosed(IoSession session) throws Exception {
@@ -73,14 +74,16 @@ public class TcpClient extends NetworkConnection {
         connector = new NioSocketConnector();
         connector.setConnectTimeoutMillis(Params.TcpClient.CONNECT_TIMEOUT_MS);
         connector.setHandler(ioHandler);
+        connected = false;
         this.invokeEvent(OPERATION__CONNECT);
     }
 
     @Override
     protected void NetworkConnection__connect() {
         LOG.log(Level.DEBUG, "connect try [" + this.host + ":" + this.port + "]");
-        ConnectFuture future = connector.connect(new InetSocketAddress(this.host, this.port));
+        connected = false;
         try {
+            ConnectFuture future = connector.connect(new InetSocketAddress(this.host, this.port));
             if(!future.await(Params.TcpClient.CONNECT_TIMEOUT_MS)) {
                 throw new Exception("connect failed");
             }
@@ -91,7 +94,7 @@ public class TcpClient extends NetworkConnection {
             LOG.log(Level.DEBUG, "connect fails [" + this.host + ":" + this.port + "]");
             session = null;
             try {
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (InterruptedException ex1) {
                 LOG.log(Level.ERROR, null, ex1);
             }
@@ -120,15 +123,30 @@ public class TcpClient extends NetworkConnection {
 
     @Override
     protected void NetworkConnection__connected(Object src) {
+        connected = true;
         this.commitConnected(src);
     }
 
     @Override
     protected void NetworkConnection__disconnected(Object src) {
+        connected = false;
         if(this.isFinished()) {
             return;
         }
-        TcpClient.this.invokeEvent(OPERATION__CONNECT);
+        new Thread(){
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex1) {
+                    LOG.log(Level.ERROR, null, ex1);
+                }
+                TcpClient.this.invokeEvent(OPERATION__CONNECT);
+            }
+        }.start();
         this.commitDisconnected(src);
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }

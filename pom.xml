@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.koveloper</groupId>
     <artifactId>apache-mina-wrapper</artifactId>
-    <version>2.3.2</version>
+    <version>2.3.5</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -37,7 +37,30 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
+            <plugin>                
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.koveloper.apache.mina.wrapper.network.Launcher</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-my-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+<!--            <plugin>
                 <groupId>com.github.ferstl</groupId>
                 <artifactId>depgraph-maven-plugin</artifactId>
                 <version>3.3.0</version>
@@ -56,12 +79,12 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
-                <executions>
+<!--                <executions>
                     <execution>
                         <id>generate-dependency-graph-image</id>
                         <phase>generate-sources</phase>
@@ -80,7 +103,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                </executions>                
+                </executions>                -->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -110,7 +133,7 @@
                 <configuration>
                 </configuration>
             </plugin>
-            <plugin>
+<!--            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.2.0</version>
@@ -135,12 +158,12 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
     <distributionManagement>
         <repository>
-            <id>radiomost-maven-repos</id>
+            <id>radiomost-maven-repos-releases</id>
             <name>Radimost Maven Repository</name>
             <url>https://maven.radio-most.ru/releases</url>
         </repository>

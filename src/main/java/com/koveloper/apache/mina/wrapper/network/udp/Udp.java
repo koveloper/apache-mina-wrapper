@@ -49,7 +49,7 @@ public class Udp extends NetworkConnection {
                 buffer.flip();
                 buffer.limit(buffer.capacity());
                 Udp.this.invokeEvent(
-                        NetworkConnectionDefaultData.getNewInstanceForReceive(bytes)
+                        NetworkConnectionDefaultData.getNewInstanceForReceive(bytes, remoteAdd)
                 );
             } catch (Exception ex) {
                 Udp.this.commitError(ex);

@@ -167,4 +167,8 @@ public class TcpServer extends NetworkConnection {
     protected void NetworkConnection__handleReceivedData(NetworkConnectionData data) {
         this.commitData(data);
     }
+    
+    public int getPort() {
+        return port;
+    }
 }
