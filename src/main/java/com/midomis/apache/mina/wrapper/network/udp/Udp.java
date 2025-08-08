@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.koveloper.apache.mina.wrapper.network.udp;
+package com.midomis.apache.mina.wrapper.network.udp;
 
-import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
-import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
-import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
-import com.koveloper.thread.utils.TasksThread;
-import com.koveloper.thread.utils.TasksThreadInterface;
-import com.koveloper.thread.utils.TasksThreadInterfaceAdapter;
+import com.midomis.apache.mina.wrapper.network.NetworkConnection;
+import com.midomis.apache.mina.wrapper.network.NetworkConnectionData;
+import com.midomis.apache.mina.wrapper.network.NetworkConnectionDefaultData;
+import com.midomis.thread.utils.TasksThread;
+import com.midomis.thread.utils.TasksThreadInterface;
+import com.midomis.thread.utils.TasksThreadInterfaceAdapter;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import java.io.IOException;

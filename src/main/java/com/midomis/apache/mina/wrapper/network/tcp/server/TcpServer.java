@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.koveloper.apache.mina.wrapper.network.tcp.server;
+package com.midomis.apache.mina.wrapper.network.tcp.server;
 
-import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
-import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
-import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
-import com.koveloper.apache.mina.wrapper.network.Params;
+import com.midomis.apache.mina.wrapper.network.NetworkConnection;
+import com.midomis.apache.mina.wrapper.network.NetworkConnectionData;
+import com.midomis.apache.mina.wrapper.network.NetworkConnectionDefaultData;
+import com.midomis.apache.mina.wrapper.network.Params;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -74,8 +74,7 @@ public class TcpServer extends NetworkConnection {
         //called on RX
         @Override
         public void messageReceived(IoSession session, Object message) {
-            if (message instanceof IoBuffer) {
-                IoBuffer buf = (IoBuffer) message;
+            if (message instanceof IoBuffer buf) {
                 LOG.log(Level.DEBUG, "message received [" + buf + "]");
                 TcpServer.this.invokeEvent(
                         NetworkConnectionDefaultData.getNewInstanceForReceive(

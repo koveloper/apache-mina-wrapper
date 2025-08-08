@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.koveloper.apache.mina.wrapper.network.tcp.client;
+package com.midomis.apache.mina.wrapper.network.tcp.client;
 
-import com.koveloper.apache.mina.wrapper.network.NetworkConnection;
-import com.koveloper.apache.mina.wrapper.network.NetworkConnectionData;
-import com.koveloper.apache.mina.wrapper.network.NetworkConnectionDefaultData;
-import com.koveloper.apache.mina.wrapper.network.Params;
+import com.midomis.apache.mina.wrapper.network.NetworkConnection;
+import com.midomis.apache.mina.wrapper.network.NetworkConnectionData;
+import com.midomis.apache.mina.wrapper.network.NetworkConnectionDefaultData;
+import com.midomis.apache.mina.wrapper.network.Params;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import org.apache.log4j.Logger;
@@ -134,6 +134,7 @@ public class TcpClient extends NetworkConnection {
             return;
         }
         new Thread(){
+            @Override
             public void run() {
                 try {
                     Thread.sleep(5000);

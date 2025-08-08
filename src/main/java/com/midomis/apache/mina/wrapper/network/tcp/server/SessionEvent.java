@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.koveloper.apache.mina.wrapper.network.tcp.server;
+package com.midomis.apache.mina.wrapper.network.tcp.server;
 
 import org.apache.mina.core.session.IoSession;
 

@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.koveloper.apache.mina.wrapper.network;
+package com.midomis.apache.mina.wrapper.network;
 
 import java.net.SocketAddress;
-import java.util.Arrays;
 import org.apache.mina.core.session.IoSession;
 
 /**
